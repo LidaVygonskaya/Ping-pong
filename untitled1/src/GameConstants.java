@@ -8,8 +8,8 @@ public interface GameConstants {
 
     //Ракетка
     public final int ROCKET_Y = 822 - 45;
-    public final int ROCKET2_Y = 45;
-    public final int ROCKET_WIDTH = 90;
+    public final int ROCKET2_Y = 15;
+    public final int ROCKET_WIDTH = 65;
     public final int ROCKET_HEIGHT = 15;
     //Шаг мяча
 
