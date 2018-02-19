@@ -1,4 +1,5 @@
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -8,7 +9,7 @@ import java.io.IOException;
 /**
  * Created by PC on 06.05.2017.
  */
-public class Menu implements GameConstants {
+public class Menu extends JComponent implements GameConstants {
     private BufferedImage background;
     private BufferedImage buttonP;
     private BufferedImage buttonQ;

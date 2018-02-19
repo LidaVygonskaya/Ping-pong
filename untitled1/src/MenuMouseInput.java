@@ -23,14 +23,14 @@ public class MenuMouseInput extends JComponent implements MouseListener, GameCon
         if (MainGame.state == MainGame.STATE.MENU) {
             if (mx >= 120 && mx <= 120 + 200) {
                 if (my >= HEIGHT_TABLE / 3 + 30 && my <= HEIGHT_TABLE / 3 + 80) {
+                    Sound.playSound("C:\\Users\\PC\\Projects\\Ping-pong\\Sound\\MENU_A_Select.wav");
                     MainGame.state = MainGame.STATE.GAME;
-                    System.out.println(MainGame.state);
                     MainGame.scorePlayer1 = 0;
                     MainGame.scorePlayer2  = 0;
                     MainGame.inGame = true;
-                    System.out.println(MainGame.inGame);
                 }
                 if ((my >= HEIGHT_TABLE / 3 + 130) && (my <= HEIGHT_TABLE + 153)) {
+                    Sound.playSound("C:\\Users\\PC\\Projects\\Ping-pong\\Sound\\MENU_A_Select.wav");
                     System.exit(0);
                 }
             }
@@ -39,17 +39,16 @@ public class MenuMouseInput extends JComponent implements MouseListener, GameCon
         if (MainGame.inGame == false) {
             if (mx >= 120 && mx <= 120 + 200) {
                 if((my >= HEIGHT_TABLE/3 + 130) && (my <= HEIGHT_TABLE + 153)) {
+                    Sound.playSound("C:\\Users\\PC\\Projects\\Ping-pong\\Sound\\MENU_A_Select.wav");
                     MainGame.state = MainGame.STATE.MENU;
-                    System.out.println(MainGame.state);
                     MainGame.bonuState = null;
                     MainGame.bonusAppear = null;
-                    //MainGame.inGame = true;
-                    System.out.println(MainGame.inGame);
                 }
 
             }
         }
     }
+
 
     @Override
     public void mouseReleased(MouseEvent e) {
@@ -63,6 +62,7 @@ public class MenuMouseInput extends JComponent implements MouseListener, GameCon
 
     @Override
     public void mouseExited(MouseEvent e) {
+
 
     }
 }

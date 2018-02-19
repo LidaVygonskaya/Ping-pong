@@ -17,7 +17,6 @@ import java.util.Random;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Date;
 
 import static java.lang.Thread.sleep;
 
@@ -28,13 +27,10 @@ public class MainGame extends JComponent implements ActionListener, GameConstant
     //private static Graphics2D g2;
     private int ball_x = BALL_START_X;
     private int ball_y = BALL_START_Y;
-    public static Date date;
-    public static long millis;
-    public int ball_speed_x = 5;
-    public int ball_speed_x2 = 10;
-    public int ball_speed_y = 8;
-    public int rocket_speed = 7;
-    public int bonus_speed = 6;
+    public int ball_speed_x = 8;
+    public int ball_speed_y = 10;
+    public int rocket_speed = 8;
+    public int bonus_speed = 9;
     public int bonusSpeedY = HEIGHT_TABLE / 2;
     private int rocket1_x = 0;
     private int rocket2_x = 0;
@@ -42,27 +38,26 @@ public class MainGame extends JComponent implements ActionListener, GameConstant
     public static int scorePlayer2 = 0; // верхняя ракетка
     public static boolean inGame = false;
     private BufferedImage ballImage;
-    private BufferedImage smallRocket;
-    private BufferedImage longRocket;
     private BufferedImage rocketImage;
-    private BufferedImage tableImage;
+    private BufferedImage tableImage = ImageIO.read(new File("C:\\Users\\PC\\Projects\\Ping-pong\\Textures\\tale1.gif"));
     private BufferedImage win;
     private BufferedImage lose;
     private float x1;
-    private float x2;
     private float y1;
-    private float y2;
     private float a;
     private float b;
     private static int weight = 0;
     private static int deviation = 0;
     Random rand1 = new Random();
     Random rand2 = new Random();
-    int i = 1;
     int r = 200;
     int m;
     public static File file = new File("C:\\Users\\PC\\Projects\\Ping-pong\\Sound\\Menu.wav");
     public static Sound sound =  new Sound(file);
+    private BufferedImage rocketImage2;
+
+    public MainGame() throws AWTException, IOException {
+    }
 
     public static enum STATE {
         MENU,
@@ -75,64 +70,69 @@ public class MainGame extends JComponent implements ActionListener, GameConstant
         LENGTH_BONUS_APPEAR,
         SMALL_BONUS,
         SMALL_BONUS_APPEAR,
+        SMALL_ENEMY,
+        SMALL_ENEMY_APPEAR,
     };
 
     public static STATE state = STATE.MENU;
     public static BONUS bonuState = null;
     public static BONUS bonusAppear = null;
 
-    public static void main(String[] args) {
-
+    public static void main(String[] args) throws AWTException, IOException {
+        Window table = new Window();
         if (!sound.isPlaying()) {
             sound.play();
         }
-        Window table = new Window();
         MainGame game = new MainGame();
         table.addMouseListener(new MenuMouseInput());
         bonus = new Bonus();
         menu1 = new Menu();
-        //Sound.playSound("C:\\Users\\PC\\Projects\\Ping-pong\\Sound\\Menu.wav");
-        while (state == STATE.MENU) {
-            System.out.println("Ya menu");
-            table.add(game);
-            table.setVisible(true);
+        table.add(game);
+        table.pack();
+        table.setVisible(true);
+
+        if (!sound.isPlaying()) {
+            sound.play();
         }
+
+        while (state == STATE.MENU) {
+           table.add(game);
+        }
+
         if ((state == STATE.GAME)) {
-            //Sound.playSound("C:\\Users\\PC\\Projects\\Ping-pong\\Sound\\Menu.mp3").join();
-            //if()
-            table.add(game);
-            table.setVisible(true);
+            table.repaint();
             table.pack();
-            javax.swing.Timer t = new javax.swing.Timer(50, game);
+            javax.swing.Timer t = new javax.swing.Timer(45, game);
             t.start();
             table.addMouseMotionListener(game);
+
 
             TimerTask rand = new TimerTask() {
                 @Override
                 public void run() {
                     Random random = new Random();
-                    deviation = random.nextInt(40);
-                    //System.out.println("deviation " + deviation);
-                    weight = random.nextInt(2);
-                    //System.out.println("weight " + weight);
+                    deviation = random.nextInt(100);
+                    weight = random.nextInt(3);
                 }
             };
             Timer randTimer = new Timer ();
-            randTimer.schedule(rand, 0, 5000);
+            randTimer.schedule(rand, 0, 2000);
 
 
             TimerTask timerTask = new TimerTask() {
                 @Override
                 public void run() {
                     Random random = new Random();
-                    int rand = random.nextInt(3);
-                    //states = 0,1,2;
+                    int rand = random.nextInt(4);
+                    //states = 0,1,2,3,4;
                     switch(rand) {
                         case 0: bonusAppear = BONUS.SPEED_BONUS_APPEAR;
                             break;
                         case 1: bonusAppear = BONUS.LENGTH_BONUS_APPEAR;
                             break;
                         case 2: bonusAppear = BONUS.SMALL_BONUS_APPEAR;
+                            break;
+                        case 3: bonusAppear = BONUS.SMALL_ENEMY_APPEAR;
                             break;
                     }
                     TimerTask task = new TimerTask() {
@@ -153,11 +153,11 @@ public class MainGame extends JComponent implements ActionListener, GameConstant
 
     public int random() {
         Random random = new Random();
-        if ((weight == 1)) {
+        if ((weight == 0)) {
 
             return -deviation + (int) traektory() - rocketImage.getWidth() / 2;
         }
-        if ((weight == 0)) {
+        if ((weight == 1) || (weight == 2)) {
 
             return deviation + (int) traektory() - rocketImage.getWidth() / 2;
         }
@@ -171,7 +171,7 @@ public class MainGame extends JComponent implements ActionListener, GameConstant
         a = (float) ball_speed_y / (float) ball_speed_x;
         b = y1 - a * x1;
         while (!lastLine(a, b)) {
-            if (a < 0) {
+            if (a > 0) {
                 a = -a;
             } else {
                 a = -a;
@@ -183,7 +183,7 @@ public class MainGame extends JComponent implements ActionListener, GameConstant
     }
 
     public boolean lastLine(float a, float b) {
-        float result = Math.abs(ROCKET2_Y - b) / a;
+        float result = Math.abs((ROCKET2_Y - b) / a);
         return (result >= 0) && (result <= WIDTH_TABLE);
     }
 
@@ -229,11 +229,12 @@ public class MainGame extends JComponent implements ActionListener, GameConstant
     }
 
     public void paintComponent(Graphics g) {
+        if (!sound.isPlaying()) {
+            sound.play();
+        }
         Graphics2D g2 = (Graphics2D) g;
         if (state == STATE.GAME) {
-            if (!sound.isPlaying()) {
-                sound.play();
-            }
+
             try {
                 tableImage = ImageIO.read(new File("C:\\Users\\PC\\Projects\\Ping-pong\\Textures\\tale1.gif"));
             } catch (IOException e) {
@@ -244,7 +245,7 @@ public class MainGame extends JComponent implements ActionListener, GameConstant
             } catch (IOException e) {
                 //nothing to do
             }
-            g2.drawImage(rocketImage, rocket2_x, ROCKET2_Y, null);
+            //g2.drawImage(rocketImage, rocket2_x, ROCKET2_Y, null);
             g2.setColor(new Color(0, 0, 0));
             g2.setFont(new Font("Times Italic", Font.BOLD, 15));
             g2.drawString("Score " + scorePlayer1 + ":" + scorePlayer2, 385, 815);
@@ -269,29 +270,47 @@ public class MainGame extends JComponent implements ActionListener, GameConstant
                 bonus.renderSmallRocket(g2, r, bonusSpeedY);
             }
 
-            if (bonuState == BONUS.LENGTH_BONUS) {
-                try {
-                    longRocket = ImageIO.read(new File("C:\\Users\\PC\\Projects\\Ping-pong\\Textures\\BigRocket.png"));
-                } catch (IOException e) {
-                }
-
-                g2.drawImage(longRocket, rocket1_x, ROCKET_Y, null);
+            if (bonusAppear == BONUS.SMALL_ENEMY_APPEAR) {
+                bonus.renderSmallRocketEnemy(g2, r, bonusSpeedY);
             }
 
-            else if (bonuState == BONUS.SMALL_BONUS) {
+
+            if (bonuState == BONUS.SMALL_ENEMY) {
                 try {
-                    smallRocket = ImageIO.read(new File("C:\\Users\\PC\\Projects\\Ping-pong\\Textures\\SmallRocket.png"));
+                    rocketImage2 = ImageIO.read(new File("C:\\Users\\PC\\Projects\\Ping-pong\\Textures\\SmallRocket.png"));
+                } catch (IOException e) {
+                }
+                g2.drawImage(rocketImage2, rocket2_x, ROCKET2_Y, null);
+            } else {
+                g2.drawImage(rocketImage, rocket2_x, ROCKET2_Y, null);
+            }
+
+
+            if (bonuState == BONUS.LENGTH_BONUS) {
+                try {
+                    rocketImage = ImageIO.read(new File("C:\\Users\\PC\\Projects\\Ping-pong\\Textures\\BigRocket.png"));
                 } catch (IOException e) {
                 }
 
-                g2.drawImage(smallRocket, rocket1_x, ROCKET_Y, null);
-            } else {
                 g2.drawImage(rocketImage, rocket1_x, ROCKET_Y, null);
+            }
+            else if (bonuState == BONUS.SMALL_BONUS) {
+                try {
+                    rocketImage = ImageIO.read(new File("C:\\Users\\PC\\Projects\\Ping-pong\\Textures\\SmallRocket.png"));
+                } catch (IOException e) {
+                }
+
+                g2.drawImage(rocketImage, rocket1_x, ROCKET_Y, null);
+            } 
+
+            else {
+                g2.drawImage(rocketImage, rocket1_x, ROCKET_Y, null);
+                
             }
 
 
         }
-        if (state == STATE.MENU) {
+        else  {
             menu1.render(g2);
         }
     }
@@ -299,12 +318,15 @@ public class MainGame extends JComponent implements ActionListener, GameConstant
     @Override
     public void actionPerformed(ActionEvent e) {
         if(inGame == true) {
+            if (!sound.isPlaying()) {
+                sound.play();
+            }
             ball_x = ball_x + ball_speed_x;
             ball_y = ball_y + ball_speed_y;
 
             //бонус скорости
             if ((bonusAppear == BONUS.SPEED_BONUS_APPEAR) || (bonusAppear == BONUS.LENGTH_BONUS_APPEAR)
-                    || (bonusAppear == BONUS.SMALL_BONUS_APPEAR))
+                    || (bonusAppear == BONUS.SMALL_BONUS_APPEAR) || (bonusAppear == BONUS.SMALL_ENEMY_APPEAR))
                 bonusSpeedY = bonusSpeedY + bonus_speed;
 
             if ((bonusSpeedY >= ROCKET_Y)) {
@@ -318,16 +340,23 @@ public class MainGame extends JComponent implements ActionListener, GameConstant
                     }
                     if (bonusAppear == BONUS.SMALL_BONUS_APPEAR)
                         bonuState = BONUS.SMALL_BONUS;
+                    if (bonusAppear == BONUS.SMALL_ENEMY_APPEAR)
+                        bonuState =  BONUS.SMALL_ENEMY;
                 }
                 m = rand2.nextInt(HEIGHT_TABLE / 4);
                 bonusSpeedY = HEIGHT_TABLE / 2 + m;
-                System.out.println(bonusSpeedY);
                 r = rand1.nextInt(WIDTH_TABLE - 45);
                 bonusAppear = null;
             }
             int rocket2c_x;
-            if ((ball_y + ballImage.getHeight() < HEIGHT_TABLE / 2) && (ball_speed_y < 0)) {
+            if ((ball_y + ballImage.getHeight() < HEIGHT_TABLE / 3) && (ball_speed_y < 0)) {
                 rocket2c_x = random();
+                if (rocket2c_x < 0) {
+                    rocket2c_x = 0;
+                } else if (rocket2c_x > WIDTH_TABLE - rocketImage.getWidth()) {
+                    rocket2c_x = WIDTH_TABLE - rocketImage.getWidth();
+                }
+
                 if (rocket2_x < rocket2c_x)
                     rocket2_x += rocket_speed;
                 if (rocket2_x > rocket2c_x)
@@ -341,24 +370,24 @@ public class MainGame extends JComponent implements ActionListener, GameConstant
 
 
             if (ball_y >= HEIGHT_TABLE - ballImage.getHeight()) {
-                Sound.playSound("C:\\Users\\PC\\Projects\\Ping-pong\\Sound\\Score.wav");
+                Sound.playSound("C:\\Users\\PC\\Projects\\Ping-pong\\Sound\\Pickup_04.wav");
                 scorePlayer2 += 1;
                 ball_x = BALL_START_X;
                 ball_y = BALL_START_Y;
                 try {
-                    sleep(3000);
+                    sleep(2000);
                 } catch (InterruptedException e1) {
                     e1.printStackTrace();
                 }
             }
 
             if (ball_y <= 0) {
-                Sound.playSound("C:\\Users\\PC\\Projects\\Ping-pong\\Sound\\Score.wav");
+                Sound.playSound("C:\\Users\\PC\\Projects\\Ping-pong\\Sound\\Pickup_04.wav");
                 scorePlayer1 += 1;
                 ball_x = BALL_START_X;
                 ball_y = BALL_START_Y;
                 try {
-                    sleep(3000);
+                    sleep(2000);
                 } catch (InterruptedException e1) {
                     e1.printStackTrace();
                 }
@@ -367,17 +396,17 @@ public class MainGame extends JComponent implements ActionListener, GameConstant
             if (ball_x >= (WIDTH_TABLE - ballImage.getWidth())) {
                 Sound.playSound("C:\\Users\\PC\\Projects\\Ping-pong\\Sound\\Pop.wav");
                 if (bonuState == BONUS.SPEED_BONUS) {
-                    ball_speed_x = -10;
+                    ball_speed_x = -18;
                 } else {
-                    ball_speed_x = -5;
+                    ball_speed_x = -12;
                 }
             }
             if (ball_x <= 0) {
                 Sound.playSound("C:\\Users\\PC\\Projects\\Ping-pong\\Sound\\Pop.wav");
                 if (bonuState == BONUS.SPEED_BONUS) {
-                    ball_speed_x = 10;
+                    ball_speed_x = 18;
                 } else {
-                    ball_speed_x = 5;
+                    ball_speed_x = 12;
                 }
             }
 
@@ -386,9 +415,9 @@ public class MainGame extends JComponent implements ActionListener, GameConstant
                         (ball_y <= ROCKET2_Y + rocketImage.getHeight())) {
                     Sound.playSound("C:\\Users\\PC\\Projects\\Ping-pong\\Sound\\Pop.wav");
                     if (bonuState == BONUS.SPEED_BONUS) {
-                        ball_speed_y = 13;
+                        ball_speed_y = 20;
                     } else {
-                        ball_speed_y = 9;
+                        ball_speed_y = 14;
                     }
                 }
             }
@@ -398,19 +427,23 @@ public class MainGame extends JComponent implements ActionListener, GameConstant
                         (ball_y <= ROCKET_Y + rocketImage.getHeight())) {
                     Sound.playSound("C:\\Users\\PC\\Projects\\Ping-pong\\Sound\\Pop.wav");
                     if (bonuState == BONUS.SPEED_BONUS) {
-                        ball_speed_y = -13;
+                        ball_speed_y = -20;
                     } else {
-                        ball_speed_y = -9;
+                        ball_speed_y = -14;
                     }
                 }
             }
 
-            if (scorePlayer1 == 7) {
+            if (scorePlayer1 == 1) {
+                sound.stop();
+                Sound.playSound("C:\\Users\\PC\\Projects\\Ping-pong\\Sound\\wiin.wav");
                 inGame = false;
                 youWin();
             }
 
-            if (scorePlayer2 == 7) {
+            if (scorePlayer2 == 5) {
+                sound.stop();
+                Sound.playSound("C:\\Users\\PC\\Projects\\Ping-pong\\Sound\\Jingle_Lose_00.wav");
                 inGame = false;
                 gameOver();
 
@@ -424,13 +457,15 @@ public class MainGame extends JComponent implements ActionListener, GameConstant
 
 
     @Override
+
     public void mouseDragged(MouseEvent e) {
 
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        rocket1_x = e.getX();
+        if ((e.getX() <= WIDTH_TABLE - rocketImage.getWidth()/2) && (e.getX() >= rocketImage.getWidth()/2 - 5))
+            rocket1_x = e.getX() - rocketImage.getWidth()/2;
         if (inGame) {
             repaint();
         }

@@ -36,4 +36,19 @@ public class Bonus extends JComponent implements GameConstants {
     }
 
 
+    public void renderSlowEnemy(Graphics2D g2, int x, int y) {
+        try {
+            bonus = ImageIO.read(new File("C:\\Users\\PC\\Projects\\Ping-pong\\Textures\\slowBonus.png"));
+        } catch (IOException e) {
+        }
+        g2.drawImage(bonus, x, y, null);
+    }
+
+    public void renderSmallRocketEnemy(Graphics2D g2, int x, int y) {
+        try {
+            bonus = ImageIO.read(new File("C:\\Users\\PC\\Projects\\Ping-pong\\Textures\\BonusSmallEnemy.png"));
+        } catch (IOException e) {
+        }
+        g2.drawImage(bonus, x, y, null);
+    }
 }
